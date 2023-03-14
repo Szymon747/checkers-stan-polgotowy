@@ -1,0 +1,4 @@
+usuwanie faromularza po zalogowanmiu
+powiadomienie ze rozpocxzeto gre (stanh)
+
+zaznaczanie pol
