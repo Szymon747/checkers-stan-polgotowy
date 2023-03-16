@@ -41,8 +41,15 @@ class Net {
     login() {
         console.log("login function")
         let login = document.getElementById("logininput").value
+        
+        
+        if(login==""){
+            login="ANONIMOWY"
+        }
         user=login
         let body = JSON.stringify({ login: login })
+
+        ui.oczekiwanie()
 
         const headers = { "Content-Type": "application/json" }
 
@@ -66,15 +73,28 @@ class Net {
             })
     }
 
-
-
-
     ready() {
         console.log("ready function")
         const body = JSON.stringify({ wait: "waiting" })
         const headers = { "Content-Type": "application/json" }
 
         return fetch("/ready", { method: "post", body, headers })
+            .then((response) => response.json())
+            .then((data) => {
+                return data
+            })
+    }
+
+
+    ruch(pionek,pole){
+        console.log("wysyłam ruch")
+        let ruch=[]
+        ruch[0]=pionek
+        ruch[1]=pole
+        const body = JSON.stringify({ ruch: ruch })
+        const headers = { "Content-Type": "application/json" }
+        
+        return fetch("/ruch", { method: "post", body, headers })
             .then((response) => response.json())
             .then((data) => {
                 return data

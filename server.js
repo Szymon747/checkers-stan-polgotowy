@@ -31,7 +31,7 @@ app.post("/handleLogin", function (req, res) {
         else {
             users[users.length] = req.body.login
             console.log(users)
-            stan = "zalogowano, czekaj na 2 gracza"
+            stan = "zalogowano, jest juz 2 graczy"
         }
 
     } else {
@@ -60,6 +60,12 @@ app.post("/ready", function (req, res) {
     res.end(JSON.stringify({ users: users }))
 })
 
+app.post("/ruch", function (req, res) {
+    console.log(req.body)
+    console.log("check")
+    res.setHeader('content-type', 'application/json')
+    res.end(JSON.stringify({ }))
+})
 app.listen(PORT, function () {
     console.log("start serwera na porcie " + PORT)
 })

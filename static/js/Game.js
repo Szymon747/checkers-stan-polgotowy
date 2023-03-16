@@ -3,6 +3,7 @@ console.log("game")
 class Game {
 
     constructor() {
+        this.onruch=1
 
         this.warcabnica = [                //tworzenie szachownicy
 
@@ -49,7 +50,7 @@ class Game {
 
         const axes = new THREE.AxesHelper(1000)
         this.scene.add(axes)
-        this.camera.position.set(0, 50, 100)
+        this.camera.position.set(100, 50, 0)
         this.camera.lookAt(this.scene.position)
 
 
@@ -108,11 +109,11 @@ class Game {
 
 
                 //tworezenie pionków z walcy
-                if (this.pionki[y][i] == 1 || this.pionki[y][i] == 2) {
+                if (this.pionki[i][y] == 1 || this.pionki[i][y] == 2) {
                     const pionekgeometry = new THREE.CylinderGeometry(4, 4, 2, 32);
                     var materialpionek
 
-                    if (this.pionki[y][i] == 1) {
+                    if (this.pionki[i][y] == 1) {
                         materialpionek = materialbialy
                     }
                     else {
@@ -123,7 +124,7 @@ class Game {
                     pionek.rodzaj = "pionek"
                     pionek.x = i;
                     pionek.y = y;
-                    cube.name = i + "" + y
+                    //  cube.name = i + "" + y
                     pionek.position.set(i * 10 - 35, 2, y * 10 - 35)
                     this.scene.add(pionek);
                 }
@@ -142,6 +143,11 @@ class Game {
         const raycaster = new THREE.Raycaster();
         const mouseVector = new THREE.Vector2()
 
+        var podswietl1 = {}
+        var podswietl2 = {}
+        podswietl1.material = materialczarny
+        podswietl2.material = materialczarny
+
         window.addEventListener("mousedown", (e) => {
             if (gamestarted) {
                 mouseVector.x = (event.clientX / window.innerWidth) * 2 - 1;
@@ -152,8 +158,20 @@ class Game {
 
                 if (intersects.length > 0) {
                     if (intersects[0].object.rodzaj == "pionek") {
-                        console.log(intersects[0].object.x, "   ", intersects[0].object.y)
-                        if (color == this.pionki[intersects[0].object.y][intersects[0].object.x]) {
+                        if (ispionekselected) {
+                            if (color == "1") {                                     //odkolorowanie po ruchu                    
+                                pionekselected.material = materialbialy
+                                podswietl1.material = materialczarny
+                                podswietl2.material = materialczarny
+                            }
+                            if (color == "2") {
+                                pionekselected.material = materialszary
+                                podswietl1.material = materialczarny
+                                podswietl2.material = materialczarny
+                            }
+                        }
+                        console.log(color, " : ", this.pionki[intersects[0].object.x][intersects[0].object.y])
+                        if (color == this.pionki[intersects[0].object.x][intersects[0].object.y]) {
                             if (color == "1") {                                 //podmianka koloru na poprzednio wybranym
                                 pionekselected.material = materialbialy
                             }
@@ -170,25 +188,36 @@ class Game {
 
 
 
-                            let pionekwspol = {
+
+                            let pionekwspol = {                                                                                     //PODSWIETLANIE PÓL
                                 x: pionekselected.x,
                                 y: pionekselected.y,
                             }
-                            let podswietl
 
                             if (color == "1") {
 
-                                podswietl = this.scene.getObjectByName((pionekwspol.x + 1) + "" + (pionekwspol.y - 1))
-                                podswietl.material = materialczerwony
-                                podswietl = this.scene.getObjectByName((pionekwspol.x - 1) + "" + (pionekwspol.y - 1))
-                                podswietl.material = materialczerwony
+                                if (pionekwspol.y - 1 < 8 && pionekwspol.y - 1 >= 0) {
+
+
+
+                                    podswietl1 = this.scene.getObjectByName((pionekwspol.x - 1) + "" + (pionekwspol.y - 1))
+                                    podswietl1.material = materialczerwony
+                                }
+
+                                if (pionekwspol.y + 1 < 8 && pionekwspol.y + 1 >= 0) {
+                                    podswietl2 = this.scene.getObjectByName((pionekwspol.x - 1) + "" + (pionekwspol.y + 1))
+                                    podswietl2.material = materialczerwony
+                                }
                             }
                             else {
-
-                                podswietl = this.scene.getObjectByName((pionekwspol.x - 1) + "" + (pionekwspol.y + 1))
-                                podswietl.material = materialczerwony
-                                podswietl = this.scene.getObjectByName((pionekwspol.x + 1) + "" + (pionekwspol.y + 1))
-                                podswietl.material = materialczerwony
+                                if (pionekwspol.y + 1 < 8 && pionekwspol.y + 1 >= 0) {
+                                    podswietl1 = this.scene.getObjectByName((pionekwspol.x + 1) + "" + (pionekwspol.y + 1))
+                                    podswietl1.material = materialczerwony
+                                }
+                                if (pionekwspol.y - 1 < 8 && pionekwspol.y - 1 >= 0) {
+                                    podswietl2 = this.scene.getObjectByName((pionekwspol.x + 1) + "" + (pionekwspol.y - 1))
+                                    podswietl2.material = materialczerwony
+                                }
                             }
 
 
@@ -206,17 +235,37 @@ class Game {
                                 poleselected = intersects[0].object
                                 console.log(poleselected.position.x)
 
-                                game.move(poleselected, pionekselected)
+                                if (poleselected.material == materialczerwony) {
+                                    if (this.pionki[intersects[0].object.x][intersects[0].object.y] ==  0) {
+                                        this.pionki[pionekselected.x][pionekselected.y] =  0
+                                        game.move(poleselected, pionekselected)
+                                    }
+                                }
 
 
 
 
-                                if (color == "1") {
+                                if (color == "1") {                                     //odkolorowanie po ruchu                    
                                     pionekselected.material = materialbialy
+                                    if (podswietl1.material == materialczerwony) {
+                                        podswietl1.material = materialczarny
+                                    }
+                                    if (podswietl2.material == materialczerwony) {
+                                        podswietl2.material = materialczarny
+                                    }
                                 }
                                 if (color == "2") {
                                     pionekselected.material = materialszary
+                                    if (podswietl1.material == materialczerwony) {
+                                        podswietl1.material = materialczarny
+                                    }
+                                    if (podswietl2.material == materialczerwony) {
+                                        podswietl2.material = materialczarny
+                                    }
                                 }
+
+
+
                                 ispionekselected = false
                                 poleselected = false
                             }
@@ -235,7 +284,8 @@ class Game {
 
 
     move(poleselected, pionekselected) {
-        this.warcabnica[pionekselected.x][pionekselected.y]=0
+        net.ruch(pionekselected,poleselected)
+        this.warcabnica[pionekselected.x][pionekselected.y] = 0
         console.log("MOVE")
         let diference = {
             x: poleselected.position.x - pionekselected.position.x,
@@ -250,7 +300,7 @@ class Game {
                 console.log("WYLACZ INTERVALA")
                 clearInterval(movement);
             }
-            console.log(i)
+            // console.log(i)
 
 
             pionekselected.position.set(
@@ -267,17 +317,20 @@ class Game {
         //     pionekselected.position.x + diference.x,
         //     pionekselected.position.y,
         //     pionekselected.position.z + diference.z)
-        pionekselected.x=poleselected.x
-        pionekselected.y=poleselected.y
-        this.warcabnica[poleselected.x][poleselected.y]=color
+        pionekselected.x = poleselected.x
+        pionekselected.y = poleselected.y
+        // pionekselected.name = poleselected.x + "" + poleselected.y
+        this.pionki[poleselected.x][poleselected.y] = parseInt(color)
+        console.log(this.pionki)
     }
     gamestarted() {
         console.log("gamestarted")
         if (color == "2") {
-            this.camera.position.set(0, 50, -100)
+            this.camera.position.set(-100, 50, 0)
             this.camera.lookAt(this.scene.position)
             console.log("jestem graczem", color)
         }
+        document.getElementById("status").innerHTML = "status: rozpoczęto grę"
     }
     render = () => {
         requestAnimationFrame(this.render);
